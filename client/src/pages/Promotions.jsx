@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { useEffect } from "react";
+import API from "../services/api";
 
 export default function Promotions() {
   const [form, setForm] = useState({
@@ -15,19 +17,34 @@ export default function Promotions() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const addPromo = () => {
+  const addPromo = async () => {
     if (!form.product || !form.discount || !form.date) {
       return setError("All fields required");
     }
 
-    if (form.discount <= 0 || form.discount > 100) {
-      return setError("Invalid discount %");
+    try {
+      await API.post("/promotions", form);
+      fetchPromos();
+      setForm({ product: "", discount: "", date: "" });
+      setError("");
+    } catch (err) {
+      setError("Error adding promo");
     }
-
-    setList([...list, form]);
-    setForm({ product: "", discount: "", date: "" });
-    setError("");
   };
+
+  const fetchPromos = async () => {
+    try {
+      const res = await API.get("/promotions");
+      console.log("Promotions:", res.data); // ADD
+      setList(res.data);
+    } catch (err) {
+      console.log("Promo Error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromos();
+  }, []);
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -75,11 +92,12 @@ export default function Promotions() {
 
         {/* List */}
         <ul className="bg-white p-4 rounded shadow">
-          {list.map((p, i) => (
-            <li key={i}>
-              {p.product} - {p.discount}% - {p.date}
-            </li>
-          ))}
+          {list &&
+            list.map((p, i) => (
+              <li key={i}>
+                {p.product} - {p.discount}% - {p.date}
+              </li>
+            ))}
         </ul>
       </div>
     </div>

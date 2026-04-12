@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import API from "../services/api";
 
 export default function Inventory() {
   const [items, setItems] = useState([]);
@@ -7,25 +8,44 @@ export default function Inventory() {
   const [qty, setQty] = useState("");
   const [error, setError] = useState("");
 
-  const addItem = () => {
-    // Validation
+  const addItem = async () => {
     if (!name || !qty) {
       return setError("All fields required");
     }
 
-    if (qty <= 0) {
-      return setError("Quantity must be positive");
+    try {
+      await API.post("/inventory", {
+        productName: name,
+        quantity: Number(qty),
+        storeId: 1,
+      });
+      fetchInventory(); // refresh
+      setName("");
+      setQty("");
+      setError("");
+    } catch (err) {
+      setError("Error adding item");
     }
-
-    setItems([...items, { id: Date.now(), name, qty }]);
-    setName("");
-    setQty("");
-    setError("");
   };
 
-  const deleteItem = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+  const deleteItem = async (id) => {
+    await API.delete(`/inventory/${id}`);
+    fetchInventory();
   };
+
+  const fetchInventory = async () => {
+    try {
+      const res = await API.get("/inventory");
+      console.log("Inventory:", res.data); // ADD THIS
+      setItems(res.data);
+    } catch (err) {
+      console.log("Inventory Error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -62,6 +82,7 @@ export default function Inventory() {
         {/* Error */}
         {error && <p className="text-red-500">{error}</p>}
 
+        <pre>{JSON.stringify(items, null, 2)}</pre>
         {/* Table */}
         <table className="w-full bg-white rounded shadow mt-4">
           <thead>
@@ -73,20 +94,21 @@ export default function Inventory() {
           </thead>
 
           <tbody>
-            {items.map((item) => (
-              <tr key={item.id} className="text-center">
-                <td className="p-2">{item.name}</td>
-                <td className="p-2">{item.qty}</td>
-                <td className="p-2">
-                  <button
-                    onClick={() => deleteItem(item.id)}
-                    className="bg-red-500 text-white px-2 py-1"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {Array.isArray(items) &&
+              items.map((item) => (
+                <tr key={item._id} className="text-center">
+                  <td className="p-2">{item.productName}</td>
+                  <td className="p-2">{item.quantity}</td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => deleteItem(item._id)}
+                      className="bg-red-500 text-white px-2 py-1"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
