@@ -1,0 +1,11 @@
+store_id,store_name,city,state,store_type,store_size_sqft
+1,Store_1,Pune,State,supermarket,2375
+2,Store_2,Pune,State,high_street,4996
+3,Store_3,Bangalore,State,mall,3690
+4,Store_4,Bangalore,State,mall,2446
+5,Store_5,Mumbai,State,mall,2542
+6,Store_6,Bangalore,State,supermarket,4593
+7,Store_7,Bangalore,State,mall,3201
+8,Store_8,Delhi,State,supermarket,1819
+9,Store_9,Delhi,State,supermarket,3412
+10,Store_10,Delhi,State,mall,4591

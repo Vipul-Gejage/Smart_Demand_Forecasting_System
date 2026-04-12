@@ -1,0 +1,69 @@
+date,event_name,event_type,city,impact_level
+2025-01-10,Local Event,national,Pune,medium
+2025-01-10,Festival,local,Mumbai,low
+2025-01-10,Holiday,local,Delhi,medium
+2025-01-10,Holiday,national,Bangalore,high
+2025-01-22,Holiday,national,Pune,high
+2025-01-22,Local Event,local,Mumbai,medium
+2025-01-22,Holiday,national,Delhi,low
+2025-01-22,Holiday,local,Bangalore,medium
+2025-01-24,Holiday,local,Pune,low
+2025-01-24,Holiday,local,Mumbai,high
+2025-01-24,Holiday,local,Delhi,medium
+2025-01-24,Local Event,local,Bangalore,medium
+2025-02-26,Holiday,national,Pune,low
+2025-02-26,Holiday,national,Mumbai,high
+2025-02-26,Local Event,local,Delhi,medium
+2025-02-26,Festival,national,Bangalore,medium
+2025-03-01,Festival,national,Pune,high
+2025-03-01,Festival,national,Mumbai,low
+2025-03-01,Local Event,local,Delhi,low
+2025-03-01,Local Event,national,Bangalore,medium
+2025-03-03,Festival,national,Pune,medium
+2025-03-03,Festival,national,Mumbai,low
+2025-03-03,Festival,local,Delhi,low
+2025-03-03,Local Event,local,Bangalore,medium
+2025-04-01,Holiday,local,Pune,medium
+2025-04-01,Festival,national,Mumbai,high
+2025-04-01,Holiday,national,Delhi,high
+2025-04-01,Festival,national,Bangalore,low
+2025-04-05,Holiday,national,Pune,low
+2025-04-05,Holiday,national,Mumbai,low
+2025-04-05,Local Event,national,Delhi,high
+2025-04-05,Holiday,national,Bangalore,low
+2025-04-11,Festival,local,Pune,low
+2025-04-11,Local Event,national,Mumbai,high
+2025-04-11,Holiday,national,Delhi,high
+2025-04-11,Holiday,local,Bangalore,low
+2025-04-15,Festival,national,Pune,low
+2025-04-15,Local Event,national,Mumbai,medium
+2025-04-15,Local Event,local,Delhi,medium
+2025-04-15,Festival,national,Bangalore,low
+2025-05-13,Holiday,national,Pune,medium
+2025-05-13,Holiday,national,Mumbai,high
+2025-05-13,Holiday,local,Delhi,medium
+2025-05-13,Holiday,national,Bangalore,high
+2025-05-22,Festival,local,Pune,medium
+2025-05-22,Festival,local,Mumbai,high
+2025-05-22,Holiday,national,Delhi,high
+2025-05-22,Local Event,national,Bangalore,high
+2025-06-10,Local Event,local,Pune,high
+2025-06-10,Festival,national,Mumbai,low
+2025-06-10,Local Event,national,Delhi,high
+2025-06-10,Holiday,national,Bangalore,low
+2025-06-19,Holiday,national,Pune,low
+2025-06-19,Local Event,national,Mumbai,high
+2025-06-19,Local Event,national,Delhi,low
+2025-06-19,Local Event,national,Bangalore,low
+2025-06-21,Local Event,local,Pune,low
+2025-06-21,Local Event,local,Mumbai,high
+2025-06-21,Festival,national,Delhi,high
+2025-06-21,Holiday,local,Bangalore,medium
+2025-06-27,Holiday,local,Pune,low
+2025-06-27,Festival,national,Mumbai,low
+2025-06-27,Festival,national,Delhi,medium
+2025-06-27,Local Event,national,Bangalore,low
+2025-06-28,Local Event,national,Pune,low
+2025-06-28,Local Event,national,Mumbai,high
+2025-06-28,Holiday,local,Delhi,medium
+2025-06-28,Holiday,local,Bangalore,low
