@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../services/api";
 
@@ -36,7 +36,6 @@ export default function Inventory() {
   const fetchInventory = async () => {
     try {
       const res = await API.get("/inventory");
-      console.log("Inventory:", res.data); // ADD THIS
       setItems(res.data);
     } catch (err) {
       console.log("Inventory Error:", err);
@@ -82,7 +81,6 @@ export default function Inventory() {
         {/* Error */}
         {error && <p className="text-red-500">{error}</p>}
 
-        <pre>{JSON.stringify(items, null, 2)}</pre>
         {/* Table */}
         <table className="w-full bg-white rounded shadow mt-4">
           <thead>

@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import { useEffect } from "react";
 import API from "../services/api";
 
 export default function Promotions() {
   const [form, setForm] = useState({
-    product: "",
-    discount: "",
+    campaign_name: "",
+    product_id: "",
+    discount_pct: "",
+    promo_type: "",
     date: "",
+    store_id: 1,
+    display_flag: true,
   });
 
   const [list, setList] = useState([]);
@@ -18,14 +21,27 @@ export default function Promotions() {
   };
 
   const addPromo = async () => {
-    if (!form.product || !form.discount || !form.date) {
+    if (
+      !form.campaign_name ||
+      !form.product_id ||
+      !form.discount_pct ||
+      !form.date
+    ) {
       return setError("All fields required");
     }
 
     try {
       await API.post("/promotions", form);
       fetchPromos();
-      setForm({ product: "", discount: "", date: "" });
+      setForm({
+        campaign_name: "",
+        product_id: "",
+        discount_pct: "",
+        promo_type: "",
+        date: "",
+        store_id: 1,
+        display_flag: true,
+      });
       setError("");
     } catch (err) {
       setError("Error adding promo");
@@ -35,7 +51,6 @@ export default function Promotions() {
   const fetchPromos = async () => {
     try {
       const res = await API.get("/promotions");
-      console.log("Promotions:", res.data); // ADD
       setList(res.data);
     } catch (err) {
       console.log("Promo Error:", err);
@@ -56,18 +71,35 @@ export default function Promotions() {
         {/* Form */}
         <div className="mb-4">
           <input
-            name="product"
-            placeholder="Product"
-            value={form.product}
+            name="campaign_name"
+            placeholder="Campaign Name"
+            value={form.campaign_name}
             onChange={handleChange}
             className="border p-2 mr-2"
           />
 
           <input
-            name="discount"
+            name="product_id"
+            type="number"
+            placeholder="Product ID"
+            value={form.product_id}
+            onChange={handleChange}
+            className="border p-2 mr-2"
+          />
+
+          <input
+            name="discount_pct"
             type="number"
             placeholder="Discount %"
-            value={form.discount}
+            value={form.discount_pct}
+            onChange={handleChange}
+            className="border p-2 mr-2"
+          />
+
+          <input
+            name="promo_type"
+            placeholder="Promo Type"
+            value={form.promo_type}
             onChange={handleChange}
             className="border p-2 mr-2"
           />
@@ -92,12 +124,16 @@ export default function Promotions() {
 
         {/* List */}
         <ul className="bg-white p-4 rounded shadow">
-          {list &&
+          {list && list.length > 0 ? (
             list.map((p, i) => (
-              <li key={i}>
-                {p.product} - {p.discount}% - {p.date}
+              <li key={i} className="mb-2 pb-2 border-b">
+                <strong>{p.campaign_name}</strong> - Product ID: {p.product_id}{" "}
+                - {p.discount_pct}% off - {p.promo_type} - {p.date}
               </li>
-            ))}
+            ))
+          ) : (
+            <li className="text-gray-500">No promotions found</li>
+          )}
         </ul>
       </div>
     </div>
