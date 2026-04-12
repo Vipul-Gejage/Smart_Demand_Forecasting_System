@@ -1,13 +1,20 @@
 const express = require("express");
 const router = express.Router();
+
 const {
-  getInventory,
   addInventory,
+  getInventory,
+  updateInventory,
   deleteInventory,
 } = require("../controllers/inventoryController");
 
-router.get("/", getInventory);
-router.post("/", addInventory);
-router.delete("/:id", deleteInventory);
+// 🔐 import middleware
+const authMiddleware = require("../middleware/authMiddleware");
+
+// routes (protected)
+router.post("/", authMiddleware, addInventory);
+router.get("/", authMiddleware, getInventory);
+router.put("/:id", authMiddleware, updateInventory);
+router.delete("/:id", authMiddleware, deleteInventory);
 
 module.exports = router;

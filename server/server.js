@@ -5,14 +5,12 @@ const cors = require("cors");
 
 const connectDB = require("./config/db");
 connectDB();
-const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
 // middleware
 app.use(cors());
 app.use(express.json());
-app.use("/api/auth", authRoutes);
 
 // test route
 app.get("/", (req, res) => {
@@ -23,6 +21,9 @@ app.get("/", (req, res) => {
 app.use("/api/inventory", require("./routes/inventoryRoutes"));
 app.use("/api/promotions", require("./routes/promotionRoutes"));
 app.use("/api/forecast", require("./routes/forecastRoutes"));
+app.use("/api/sales", require("./routes/salesRoutes"));
+app.use("/api/alerts", require("./routes/alertRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

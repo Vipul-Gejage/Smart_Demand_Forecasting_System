@@ -1,24 +1,55 @@
 const Promotion = require("../models/Promotion");
 
-// GET promotions
-exports.getPromotions = async (req, res) => {
+// ➕ Create Promotion
+exports.addPromotion = async (req, res) => {
   try {
-    const promos = await Promotion.find();
-    res.json(promos); // MUST be array
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error fetching promos" });
+    const data = await Promotion.create(req.body);
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// ADD promotion
-exports.addPromotion = async (req, res) => {
+// 📥 Get All Promotions
+exports.getPromotions = async (req, res) => {
   try {
-    const promo = new Promotion(req.body);
-    await promo.save();
+    const data = await Promotion.find();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    res.json(promo);
-  } catch (err) {
-    res.status(500).json({ message: "Error adding promo" });
+// ✏️ Update Promotion
+exports.updatePromotion = async (req, res) => {
+  try {
+    const data = await Promotion.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!data) {
+      return res.status(404).json({ message: "Promotion not found" });
+    }
+
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ❌ Delete Promotion
+exports.deletePromotion = async (req, res) => {
+  try {
+    const data = await Promotion.findByIdAndDelete(req.params.id);
+
+    if (!data) {
+      return res.status(404).json({ message: "Promotion not found" });
+    }
+
+    res.json({ message: "Deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

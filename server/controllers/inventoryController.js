@@ -1,35 +1,45 @@
 const Inventory = require("../models/Inventory");
 
-// GET all inventory
-exports.getInventory = async (req, res) => {
-  try {
-    const items = await Inventory.find();
-    res.json(items); // MUST BE ARRAY
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching inventory" });
-  }
-};
-
-// ADD item
+// ➕ Create Inventory
 exports.addInventory = async (req, res) => {
   try {
-    const { name, qty } = req.body;
-
-    const item = new Inventory({ name, qty });
-    await item.save();
-
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: "Error adding item" });
+    const data = await Inventory.create(req.body);
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// DELETE item
+// 📥 Get All Inventory
+exports.getInventory = async (req, res) => {
+  try {
+    const data = await Inventory.find();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ✏️ Update Inventory
+exports.updateInventory = async (req, res) => {
+  try {
+    const data = await Inventory.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ❌ Delete Inventory
 exports.deleteInventory = async (req, res) => {
   try {
     await Inventory.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
-  } catch (err) {
-    res.status(500).json({ message: "Error deleting" });
+    res.json({ message: "Deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
