@@ -7,21 +7,21 @@ from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 
-from ml_service.config import (
+from config import (
     DEFAULT_FORECAST_HORIZON,
     DEFAULT_LEAD_TIME_DAYS,
     RISK_SIGMOID_SCALE,
 )
-from ml_service.forecasting import recursive_multistep_forecast
-from ml_service.inventory import recommended_inventory
-from ml_service.preprocessing import (
+from forecasting import recursive_multistep_forecast
+from inventory import recommended_inventory
+from preprocessing import (
     get_last_inventory,
     historical_demand_std,
     request_to_dataframes,
 )
-from ml_service.risk import overstock_risk as calc_overstock_risk
-from ml_service.risk import stockout_risk as calc_stockout_risk
-from ml_service.schemas import ForecastDay, ForecastRequest, ForecastResponse
+from risk import overstock_risk as calc_overstock_risk
+from risk import stockout_risk as calc_stockout_risk
+from schemas import ForecastDay, ForecastRequest, ForecastResponse
 
 app = FastAPI(title="Demand Forecasting ML Service", version="1.0.0")
 

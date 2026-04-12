@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ml_service.config import RISK_SIGMOID_SCALE
+from config import RISK_SIGMOID_SCALE
 
 
 def sigmoid(x: float) -> float:

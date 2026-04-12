@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from ml_service.schemas import ForecastRequest
+from schemas import ForecastRequest
 
 
 def _parse_date(s: str) -> pd.Timestamp:

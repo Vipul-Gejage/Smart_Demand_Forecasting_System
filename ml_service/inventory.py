@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 
-from ml_service.config import DEFAULT_LEAD_TIME_DAYS, SAFETY_STOCK_Z
+from config import DEFAULT_LEAD_TIME_DAYS, SAFETY_STOCK_Z
 
 
 def safety_stock(sigma_demand: float, lead_time_days: int) -> float:

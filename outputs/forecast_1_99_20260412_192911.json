@@ -1,0 +1,35 @@
+{
+  "forecast": [
+    {
+      "date": "2025-01-15",
+      "predicted_units": 46.4952
+    },
+    {
+      "date": "2025-01-16",
+      "predicted_units": 49.2764
+    },
+    {
+      "date": "2025-01-17",
+      "predicted_units": 49.3591
+    },
+    {
+      "date": "2025-01-18",
+      "predicted_units": 64.8672
+    },
+    {
+      "date": "2025-01-19",
+      "predicted_units": 67.4429
+    },
+    {
+      "date": "2025-01-20",
+      "predicted_units": 50.9376
+    },
+    {
+      "date": "2025-01-21",
+      "predicted_units": 48.9571
+    }
+  ],
+  "recommended_inventory": 406.3236,
+  "stockout_risk": 0.998917,
+  "overstock_risk": 0.001083
+}

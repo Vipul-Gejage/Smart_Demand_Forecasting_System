@@ -5,8 +5,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import joblib
 
-from ml_service.config import MODEL_PATH, USE_MOCK_FORECAST
-from ml_service.features import FEATURE_COLUMNS
+from config import MODEL_PATH, USE_MOCK_FORECAST
+from features import FEATURE_COLUMNS
 
 
 def model_should_mock() -> bool:
