@@ -3,8 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from ml_service.config import (
     DEFAULT_FORECAST_HORIZON,
@@ -24,22 +25,26 @@ from ml_service.schemas import ForecastDay, ForecastRequest, ForecastResponse
 
 app = FastAPI(title="Demand Forecasting ML Service", version="1.0.0")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 OUTPUT_DIR = Path(__file__).resolve().parents[1] / "outputs"
 
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+api = APIRouter()
 
 
-@app.post("/forecast", response_model=ForecastResponse)
-def forecast(
-    body: ForecastRequest,
-    save_json: bool = Query(
-        True,
-        description="If true (default), writes JSON under outputs/ and sets X-Saved-Path. Use false to skip disk.",
-    ),
-):
+@api.get("/forecast", response_class=PlainTextResponse)
+def forecast_status():
+    """Mirrors Express `server/routes/forecastRoutes.js` GET /api/forecast."""
+    return "Forecast API working"
+
+
+def _run_forecast(body: ForecastRequest, save_json: bool) -> JSONResponse | ForecastResponse:
     hist, promos, weather_df, events_df, _city = request_to_dataframes(body)
     if hist.empty:
         raise HTTPException(status_code=400, detail="sales_history cannot be empty")
@@ -94,3 +99,51 @@ def forecast(
         )
 
     return response
+
+
+@api.post("/forecast", response_model=ForecastResponse)
+def forecast_post(
+    body: ForecastRequest,
+    save_json: bool = Query(
+        True,
+        description="If true (default), writes JSON under outputs/ and sets X-Saved-Path. Use false to skip disk.",
+    ),
+):
+    """
+    Primary forecast endpoint — attach the Node server here (e.g. proxy POST /api/forecast
+    to this URL on the ML process).
+    """
+    return _run_forecast(body, save_json)
+
+
+app.include_router(api, prefix="/api")
+
+
+@app.get("/")
+def root():
+    return {
+        "service": app.title,
+        "version": app.version,
+        "express_alignment": {
+            "note": "Express serves GET /api/forecast as a stub; run this ML app separately and point clients or a future proxy to it.",
+            "ml_get_status": "GET /api/forecast",
+            "ml_run_forecast": "POST /api/forecast",
+        },
+    }
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.post("/forecast", response_model=ForecastResponse)
+def forecast_legacy(
+    body: ForecastRequest,
+    save_json: bool = Query(
+        True,
+        description="If true (default), writes JSON under outputs/ and sets X-Saved-Path. Use false to skip disk.",
+    ),
+):
+    """Same as POST /api/forecast (kept for older clients)."""
+    return _run_forecast(body, save_json)
