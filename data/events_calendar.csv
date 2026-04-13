@@ -1,69 +1,161 @@
 date,event_name,event_type,city,impact_level
-2025-01-10,Local Event,national,Pune,medium
-2025-01-10,Festival,local,Mumbai,low
-2025-01-10,Holiday,local,Delhi,medium
-2025-01-10,Holiday,national,Bangalore,high
-2025-01-22,Holiday,national,Pune,high
-2025-01-22,Local Event,local,Mumbai,medium
-2025-01-22,Holiday,national,Delhi,low
-2025-01-22,Holiday,local,Bangalore,medium
-2025-01-24,Holiday,local,Pune,low
-2025-01-24,Holiday,local,Mumbai,high
-2025-01-24,Holiday,local,Delhi,medium
-2025-01-24,Local Event,local,Bangalore,medium
-2025-02-26,Holiday,national,Pune,low
-2025-02-26,Holiday,national,Mumbai,high
-2025-02-26,Local Event,local,Delhi,medium
-2025-02-26,Festival,national,Bangalore,medium
-2025-03-01,Festival,national,Pune,high
-2025-03-01,Festival,national,Mumbai,low
-2025-03-01,Local Event,local,Delhi,low
-2025-03-01,Local Event,national,Bangalore,medium
-2025-03-03,Festival,national,Pune,medium
-2025-03-03,Festival,national,Mumbai,low
-2025-03-03,Festival,local,Delhi,low
-2025-03-03,Local Event,local,Bangalore,medium
-2025-04-01,Holiday,local,Pune,medium
-2025-04-01,Festival,national,Mumbai,high
-2025-04-01,Holiday,national,Delhi,high
-2025-04-01,Festival,national,Bangalore,low
-2025-04-05,Holiday,national,Pune,low
-2025-04-05,Holiday,national,Mumbai,low
-2025-04-05,Local Event,national,Delhi,high
-2025-04-05,Holiday,national,Bangalore,low
-2025-04-11,Festival,local,Pune,low
-2025-04-11,Local Event,national,Mumbai,high
-2025-04-11,Holiday,national,Delhi,high
-2025-04-11,Holiday,local,Bangalore,low
-2025-04-15,Festival,national,Pune,low
-2025-04-15,Local Event,national,Mumbai,medium
-2025-04-15,Local Event,local,Delhi,medium
-2025-04-15,Festival,national,Bangalore,low
-2025-05-13,Holiday,national,Pune,medium
-2025-05-13,Holiday,national,Mumbai,high
-2025-05-13,Holiday,local,Delhi,medium
-2025-05-13,Holiday,national,Bangalore,high
-2025-05-22,Festival,local,Pune,medium
-2025-05-22,Festival,local,Mumbai,high
-2025-05-22,Holiday,national,Delhi,high
-2025-05-22,Local Event,national,Bangalore,high
-2025-06-10,Local Event,local,Pune,high
-2025-06-10,Festival,national,Mumbai,low
-2025-06-10,Local Event,national,Delhi,high
-2025-06-10,Holiday,national,Bangalore,low
-2025-06-19,Holiday,national,Pune,low
-2025-06-19,Local Event,national,Mumbai,high
-2025-06-19,Local Event,national,Delhi,low
-2025-06-19,Local Event,national,Bangalore,low
-2025-06-21,Local Event,local,Pune,low
-2025-06-21,Local Event,local,Mumbai,high
-2025-06-21,Festival,national,Delhi,high
-2025-06-21,Holiday,local,Bangalore,medium
-2025-06-27,Holiday,local,Pune,low
-2025-06-27,Festival,national,Mumbai,low
-2025-06-27,Festival,national,Delhi,medium
-2025-06-27,Local Event,national,Bangalore,low
-2025-06-28,Local Event,national,Pune,low
-2025-06-28,Local Event,national,Mumbai,high
-2025-06-28,Holiday,local,Delhi,medium
-2025-06-28,Holiday,local,Bangalore,low
+2025-01-14,Makar Sankranti,festival,Pune,medium
+2025-01-14,Makar Sankranti,festival,Mumbai,medium
+2025-01-14,Makar Sankranti,festival,Delhi,low
+2025-01-14,Makar Sankranti,festival,Bangalore,low
+2025-01-26,Republic Day,national,Delhi,high
+2025-01-26,Republic Day,national,Mumbai,medium
+2025-01-26,Republic Day,national,Pune,medium
+2025-01-26,Republic Day,national,Bangalore,medium
+2025-03-14,Holi,festival,Delhi,high
+2025-03-14,Holi,festival,Mumbai,medium
+2025-03-14,Holi,festival,Pune,high
+2025-03-14,Holi,festival,Bangalore,medium
+2025-04-10,Ramzan Eid,festival,Mumbai,high
+2025-04-10,Ramzan Eid,festival,Delhi,high
+2025-04-10,Ramzan Eid,festival,Pune,medium
+2025-04-10,Ramzan Eid,festival,Bangalore,medium
+2025-08-15,Independence Day,national,Delhi,high
+2025-08-15,Independence Day,national,Mumbai,medium
+2025-08-15,Independence Day,national,Pune,medium
+2025-08-15,Independence Day,national,Bangalore,medium
+2025-09-07,Ganesh Chaturthi,festival,Pune,high
+2025-09-07,Ganesh Chaturthi,festival,Mumbai,high
+2025-09-07,Ganesh Chaturthi,festival,Delhi,low
+2025-09-07,Ganesh Chaturthi,festival,Bangalore,medium
+2025-10-20,Diwali,festival,Delhi,high
+2025-10-20,Diwali,festival,Mumbai,high
+2025-10-20,Diwali,festival,Pune,high
+2025-10-20,Diwali,festival,Bangalore,high
+2025-12-25,Christmas,festival,Bangalore,high
+2025-12-25,Christmas,festival,Mumbai,medium
+2025-12-25,Christmas,festival,Delhi,medium
+2025-12-25,Christmas,festival,Pune,medium
+2025-12-31,New Year Eve,event,Mumbai,high
+2025-12-31,New Year Eve,event,Bangalore,high
+2025-12-31,New Year Eve,event,Delhi,medium
+2025-12-31,New Year Eve,event,Pune,medium
+2025-01-01,New Year,festival,Mumbai,high
+2025-01-01,New Year,festival,Bangalore,high
+2025-01-01,New Year,festival,Delhi,medium
+2025-01-01,New Year,festival,Pune,medium
+2025-01-26,Republic Day,national,Delhi,high
+2025-01-26,Republic Day,national,Mumbai,medium
+2025-01-26,Republic Day,national,Pune,medium
+2025-01-26,Republic Day,national,Bangalore,medium
+2025-03-08,International Women's Day,event,Mumbai,medium
+2025-03-08,International Women's Day,event,Delhi,medium
+2025-03-08,International Women's Day,event,Pune,low
+2025-03-08,International Women's Day,event,Bangalore,medium
+2025-03-14,Holi,festival,Delhi,high
+2025-03-14,Holi,festival,Pune,high
+2025-03-14,Holi,festival,Mumbai,medium
+2025-03-14,Holi,festival,Bangalore,medium
+2025-04-10,Eid al-Fitr,festival,Delhi,high
+2025-04-10,Eid al-Fitr,festival,Mumbai,high
+2025-04-10,Eid al-Fitr,festival,Pune,medium
+2025-04-10,Eid al-Fitr,festival,Bangalore,medium
+2025-05-01,Labour Day,national,Mumbai,medium
+2025-05-01,Labour Day,national,Delhi,low
+2025-05-01,Labour Day,national,Pune,low
+2025-05-01,Labour Day,national,Bangalore,medium
+2025-08-15,Independence Day,national,Delhi,high
+2025-08-15,Independence Day,national,Mumbai,medium
+2025-08-15,Independence Day,national,Pune,medium
+2025-08-15,Independence Day,national,Bangalore,medium
+2025-09-07,Ganesh Chaturthi,festival,Pune,high
+2025-09-07,Ganesh Chaturthi,festival,Mumbai,high
+2025-09-07,Ganesh Chaturthi,festival,Bangalore,medium
+2025-09-07,Ganesh Chaturthi,festival,Delhi,low
+2025-10-02,Gandhi Jayanti,national,Delhi,medium
+2025-10-02,Gandhi Jayanti,national,Mumbai,medium
+2025-10-02,Gandhi Jayanti,national,Pune,medium
+2025-10-02,Gandhi Jayanti,national,Bangalore,medium
+2025-10-20,Diwali,festival,Delhi,high
+2025-10-20,Diwali,festival,Mumbai,high
+2025-10-20,Diwali,festival,Pune,high
+2025-10-20,Diwali,festival,Bangalore,high
+2025-12-31,New Year's Eve,event,Mumbai,high
+2025-12-31,New Year's Eve,event,Bangalore,high
+2025-12-31,New Year's Eve,event,Delhi,medium
+2025-12-31,New Year's Eve,event,Pune,medium
+2025-01-14,Makar Sankranti,festival,Pune,medium
+2025-01-14,Makar Sankranti,festival,Mumbai,medium
+2025-01-14,Makar Sankranti,festival,Delhi,low
+2025-01-14,Makar Sankranti,festival,Bangalore,low
+2025-01-26,Republic Day,national,Delhi,high
+2025-01-26,Republic Day,national,Mumbai,medium
+2025-01-26,Republic Day,national,Pune,medium
+2025-01-26,Republic Day,national,Bangalore,medium
+2025-03-14,Holi,festival,Delhi,high
+2025-03-14,Holi,festival,Mumbai,medium
+2025-03-14,Holi,festival,Pune,high
+2025-03-14,Holi,festival,Bangalore,medium
+2025-04-10,Ramzan Eid,festival,Mumbai,high
+2025-04-10,Ramzan Eid,festival,Delhi,high
+2025-04-10,Ramzan Eid,festival,Pune,medium
+2025-04-10,Ramzan Eid,festival,Bangalore,medium
+2025-08-15,Independence Day,national,Delhi,high
+2025-08-15,Independence Day,national,Mumbai,medium
+2025-08-15,Independence Day,national,Pune,medium
+2025-08-15,Independence Day,national,Bangalore,medium
+2025-09-07,Ganesh Chaturthi,festival,Pune,high
+2025-09-07,Ganesh Chaturthi,festival,Mumbai,high
+2025-09-07,Ganesh Chaturthi,festival,Delhi,low
+2025-09-07,Ganesh Chaturthi,festival,Bangalore,medium
+2025-10-20,Diwali,festival,Delhi,high
+2025-10-20,Diwali,festival,Mumbai,high
+2025-10-20,Diwali,festival,Pune,high
+2025-10-20,Diwali,festival,Bangalore,high
+2025-12-25,Christmas,festival,Bangalore,high
+2025-12-25,Christmas,festival,Mumbai,medium
+2025-12-25,Christmas,festival,Delhi,medium
+2025-12-25,Christmas,festival,Pune,medium
+2025-12-31,New Year Eve,event,Mumbai,high
+2025-12-31,New Year Eve,event,Bangalore,high
+2025-12-31,New Year Eve,event,Delhi,medium
+2025-12-31,New Year Eve,event,Pune,medium
+2025-01-01,New Year,festival,Mumbai,high
+2025-01-01,New Year,festival,Bangalore,high
+2025-01-01,New Year,festival,Delhi,medium
+2025-01-01,New Year,festival,Pune,medium
+2025-01-26,Republic Day,national,Delhi,high
+2025-01-26,Republic Day,national,Mumbai,medium
+2025-01-26,Republic Day,national,Pune,medium
+2025-01-26,Republic Day,national,Bangalore,medium
+2025-03-08,International Women's Day,event,Mumbai,medium
+2025-03-08,International Women's Day,event,Delhi,medium
+2025-03-08,International Women's Day,event,Pune,low
+2025-03-08,International Women's Day,event,Bangalore,medium
+2025-03-14,Holi,festival,Delhi,high
+2025-03-14,Holi,festival,Pune,high
+2025-03-14,Holi,festival,Mumbai,medium
+2025-03-14,Holi,festival,Bangalore,medium
+2025-04-10,Eid al-Fitr,festival,Delhi,high
+2025-04-10,Eid al-Fitr,festival,Mumbai,high
+2025-04-10,Eid al-Fitr,festival,Pune,medium
+2025-04-10,Eid al-Fitr,festival,Bangalore,medium
+2025-05-01,Labour Day,national,Mumbai,medium
+2025-05-01,Labour Day,national,Delhi,low
+2025-05-01,Labour Day,national,Pune,low
+2025-05-01,Labour Day,national,Bangalore,medium
+2025-08-15,Independence Day,national,Delhi,high
+2025-08-15,Independence Day,national,Mumbai,medium
+2025-08-15,Independence Day,national,Pune,medium
+2025-08-15,Independence Day,national,Bangalore,medium
+2025-09-07,Ganesh Chaturthi,festival,Pune,high
+2025-09-07,Ganesh Chaturthi,festival,Mumbai,high
+2025-09-07,Ganesh Chaturthi,festival,Bangalore,medium
+2025-09-07,Ganesh Chaturthi,festival,Delhi,low
+2025-10-02,Gandhi Jayanti,national,Delhi,medium
+2025-10-02,Gandhi Jayanti,national,Mumbai,medium
+2025-10-02,Gandhi Jayanti,national,Pune,medium
+2025-10-02,Gandhi Jayanti,national,Bangalore,medium
+2025-10-20,Diwali,festival,Delhi,high
+2025-10-20,Diwali,festival,Mumbai,high
+2025-10-20,Diwali,festival,Pune,high
+2025-10-20,Diwali,festival,Bangalore,high
+2025-12-31,New Year's Eve,event,Mumbai,high
+2025-12-31,New Year's Eve,event,Bangalore,high
+2025-12-31,New Year's Eve,event,Delhi,medium
+2025-12-31,New Year's Eve,event,Pune,medium

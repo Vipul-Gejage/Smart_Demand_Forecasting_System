@@ -2,8 +2,16 @@ const mongoose = require("mongoose");
 
 const forecastSchema = new mongoose.Schema({
   date: String,
-  store_id: Number,
-  product_id: Number,
+  storeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true,
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
   predicted_units_sold: Number,
   recommended_inventory_level: Number
 }, {

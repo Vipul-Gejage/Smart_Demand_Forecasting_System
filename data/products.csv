@@ -1,51 +1,51 @@
 product_id,product_name,category,subcategory,brand,mrp,shelf_life_days,lead_time_days
-1,Product_1,grocery,Sub_3,Brand_8,406.8,8,7
-2,Product_2,electronics,Sub_1,Brand_8,60.44,18,8
-3,Product_3,grocery,Sub_2,Brand_2,255.39,12,6
-4,Product_4,clothing,Sub_1,Brand_5,215.05,47,6
-5,Product_5,electronics,Sub_4,Brand_7,354.03,9,9
-6,Product_6,grocery,Sub_1,Brand_8,82.98,42,5
-7,Product_7,electronics,Sub_4,Brand_1,270.57,58,8
-8,Product_8,grocery,Sub_3,Brand_10,429.37,27,7
-9,Product_9,clothing,Sub_2,Brand_8,481.97,19,7
-10,Product_10,clothing,Sub_4,Brand_2,171.18,35,10
-11,Product_11,electronics,Sub_5,Brand_7,235.38,60,6
-12,Product_12,electronics,Sub_5,Brand_7,340.2,19,4
-13,Product_13,electronics,Sub_2,Brand_5,222.45,10,7
-14,Product_14,grocery,Sub_5,Brand_6,122.84,29,8
-15,Product_15,grocery,Sub_2,Brand_1,58.15,59,5
-16,Product_16,grocery,Sub_2,Brand_6,264.2,48,7
-17,Product_17,clothing,Sub_5,Brand_5,109.15,59,8
-18,Product_18,clothing,Sub_3,Brand_9,341.24,47,9
-19,Product_19,grocery,Sub_5,Brand_10,205.91,16,3
-20,Product_20,grocery,Sub_5,Brand_2,67.88,14,3
-21,Product_21,grocery,Sub_4,Brand_4,231.42,17,8
-22,Product_22,clothing,Sub_2,Brand_7,435.78,23,8
-23,Product_23,clothing,Sub_3,Brand_9,488.57,52,8
-24,Product_24,clothing,Sub_5,Brand_4,497.43,27,10
-25,Product_25,electronics,Sub_3,Brand_9,51.65,6,9
-26,Product_26,electronics,Sub_3,Brand_6,254.74,10,6
-27,Product_27,grocery,Sub_3,Brand_6,220.96,50,3
-28,Product_28,grocery,Sub_3,Brand_1,117.74,6,7
-29,Product_29,grocery,Sub_4,Brand_8,203.61,24,3
-30,Product_30,clothing,Sub_4,Brand_1,372.71,21,8
-31,Product_31,grocery,Sub_5,Brand_6,421.33,24,2
-32,Product_32,clothing,Sub_4,Brand_9,406.48,30,5
-33,Product_33,clothing,Sub_2,Brand_4,266.85,51,5
-34,Product_34,grocery,Sub_3,Brand_2,397.97,54,7
-35,Product_35,electronics,Sub_4,Brand_3,296.5,12,9
-36,Product_36,clothing,Sub_5,Brand_10,404.28,10,6
-37,Product_37,grocery,Sub_4,Brand_1,398.77,31,8
-38,Product_38,grocery,Sub_2,Brand_3,205.76,34,2
-39,Product_39,grocery,Sub_1,Brand_9,398.35,28,10
-40,Product_40,electronics,Sub_4,Brand_7,212.59,6,9
-41,Product_41,electronics,Sub_2,Brand_9,78.46,23,5
-42,Product_42,electronics,Sub_2,Brand_7,263.44,59,8
-43,Product_43,clothing,Sub_3,Brand_8,293.88,37,6
-44,Product_44,grocery,Sub_5,Brand_1,404.94,58,10
-45,Product_45,clothing,Sub_3,Brand_4,416.96,45,5
-46,Product_46,clothing,Sub_5,Brand_8,433.37,35,8
-47,Product_47,grocery,Sub_1,Brand_10,346.81,23,9
-48,Product_48,clothing,Sub_2,Brand_6,321.63,33,9
-49,Product_49,grocery,Sub_2,Brand_8,231.63,49,6
-50,Product_50,grocery,Sub_2,Brand_5,439.78,39,10
+1,Amul Toned Milk 1L,grocery,Dairy,Amul,62,5,2
+2,Britannia Good Day Biscuits 200g,grocery,Snacks,Britannia,45,120,4
+3,Tata Sampann Toor Dal 1kg,grocery,Pulses,Tata,210,180,5
+4,Aashirvaad Atta 5kg,grocery,Staples,ITC,280,180,6
+5,Maggi 2-Minute Noodles Pack,grocery,Snacks,Nestle,14,180,5
+6,Parle-G Biscuits 250g,grocery,Snacks,Parle,30,180,4
+7,Fortune Sunflower Oil 1L,grocery,Edible Oil,Adani Wilmar,160,365,6
+8,Red Label Tea 500g,grocery,Beverages,Tata,280,365,5
+9,Nescafe Classic Coffee 100g,grocery,Beverages,Nestle,320,365,6
+10,Surf Excel Detergent 1kg,grocery,Household,HUL,220,365,5
+11,Dettol Antiseptic Liquid 500ml,grocery,Personal Care,Dettol,180,365,5
+12,Dove Shampoo 340ml,grocery,Personal Care,Dove,260,365,6
+13,Colgate Toothpaste 200g,grocery,Personal Care,Colgate,120,365,4
+14,Lays Classic Chips 50g,grocery,Snacks,Lays,20,120,4
+15,Pepsi 1L Bottle,grocery,Beverages,Pepsi,65,90,3
+16,Coca Cola 750ml,grocery,Beverages,Coca-Cola,55,90,3
+17,Amul Butter 500g,grocery,Dairy,Amul,265,30,3
+18,Paneer 200g Pack,grocery,Dairy,Amul,90,7,2
+19,Onion 1kg,grocery,Vegetables,LocalFarm,30,7,1
+20,Potato 1kg,grocery,Vegetables,LocalFarm,25,15,1
+21,Samsung Galaxy M34 Mobile,electronics,Mobile,Samsung,18999,365,7
+22,iPhone 13 128GB,electronics,Mobile,Apple,59999,365,10
+23,Redmi Note 12,electronics,Mobile,Xiaomi,13999,365,7
+24,boAt Airdopes 141 Earbuds,electronics,Audio,boAt,1299,365,6
+25,Noise Smartwatch ColorFit,electronics,Wearables,Noise,2999,365,6
+26,HP Laptop 15s,electronics,Laptop,HP,52000,365,10
+27,Dell Inspiron Laptop,electronics,Laptop,Dell,58000,365,10
+28,Logitech Wireless Mouse,electronics,Accessories,Logitech,799,365,5
+29,HP Wired Keyboard,electronics,Accessories,HP,699,365,5
+30,Samsung 25W Charger,electronics,Accessories,Samsung,1499,365,6
+31,Mi Power Bank 10000mAh,electronics,Accessories,Xiaomi,1199,365,6
+32,Sony Bluetooth Speaker,electronics,Audio,Sony,3499,365,7
+33,LG 32-inch LED TV,electronics,TV,LG,18000,365,10
+34,Boat Rockerz Headphones,electronics,Audio,boAt,1599,365,6
+35,Men Cotton Casual Shirt Blue,clothing,Men Wear,Peter England,899,365,6
+36,Women Kurti Printed,clothing,Women Wear,Biba,1199,365,7
+37,Levi's Men's Jeans,clothing,Men Wear,Levis,2499,365,8
+38,Kids T-Shirt Cartoon Print,clothing,Kids Wear,Puma,699,365,6
+39,Women's Leggings Cotton,clothing,Women Wear,Zudio,499,365,5
+40,Men Formal Shirt White,clothing,Men Wear,Van Heusen,1299,365,7
+41,Adidas Running Shoes,clothing,Footwear,Adidas,3499,365,8
+42,Nike Sports Shoes,clothing,Footwear,Nike,4299,365,8
+43,Reebok Gym T-Shirt,clothing,Men Wear,Reebok,999,365,6
+44,Women's Saree Silk,clothing,Women Wear,FabIndia,2999,365,10
+45,Men Hoodie Sweatshirt,clothing,Men Wear,H&M,1599,365,7
+46,Kids School Uniform Set,clothing,Kids Wear,LocalBrand,899,365,5
+47,Formal Trousers Men,clothing,Men Wear,Allen Solly,1799,365,7
+48,Women's Handbag Leather,clothing,Accessories,Caprese,2499,365,8
+49,Men Belt Leather,clothing,Accessories,Woodland,799,365,6
+50,Winter Jacket Men,clothing,Men Wear,Decathlon,2999,365,9

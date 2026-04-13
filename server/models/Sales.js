@@ -2,8 +2,16 @@ const mongoose = require("mongoose");
 
 const salesSchema = new mongoose.Schema({
   date: String,
-  store_id: Number,
-  product_id: Number,
+  storeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true,
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
   units_sold: Number,
   sell_price: Number,
   inventory_on_hand: Number,

@@ -1,9 +1,20 @@
 const mongoose = require("mongoose");
 
 const promotionSchema = new mongoose.Schema({
-  date: String,
-  store_id: Number,
-  product_id: Number,
+  date: {
+    type: String,
+    required: true,
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  storeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true,
+  },
   promo_type: String,
   discount_pct: Number,
   display_flag: Boolean,
