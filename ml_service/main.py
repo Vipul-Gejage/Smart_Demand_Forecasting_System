@@ -1,7 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime
 from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover
+    load_dotenv = None
+
+_ENV_PATH = Path(__file__).resolve().parent / ".env"
+if load_dotenv is not None and _ENV_PATH.is_file():
+    load_dotenv(dotenv_path=_ENV_PATH, override=False)
+
+from datetime import datetime
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +22,7 @@ from config import (
     DEFAULT_LEAD_TIME_DAYS,
     RISK_SIGMOID_SCALE,
 )
+from explainability import build_explanation_payload
 from forecasting import recursive_multistep_forecast
 from inventory import recommended_inventory
 from preprocessing import (
@@ -21,7 +32,12 @@ from preprocessing import (
 )
 from risk import overstock_risk as calc_overstock_risk
 from risk import stockout_risk as calc_stockout_risk
-from schemas import ForecastDay, ForecastRequest, ForecastResponse
+from schemas import (
+    ForecastDay,
+    ForecastRequest,
+    ForecastResponse,
+    ForecastResponseWithExplanation,
+)
 
 app = FastAPI(title="Demand Forecasting ML Service", version="1.0.0")
 
@@ -44,7 +60,11 @@ def forecast_status():
     return "Forecast API working"
 
 
-def _run_forecast(body: ForecastRequest, save_json: bool) -> JSONResponse | ForecastResponse:
+def _run_forecast(
+    body: ForecastRequest,
+    save_json: bool,
+    include_explanation: bool = False,
+) -> JSONResponse | ForecastResponse | ForecastResponseWithExplanation:
     hist, promos, weather_df, events_df, _city = request_to_dataframes(body)
     if hist.empty:
         raise HTTPException(status_code=400, detail="sales_history cannot be empty")
@@ -52,7 +72,7 @@ def _run_forecast(body: ForecastRequest, save_json: bool) -> JSONResponse | Fore
     lead_time = int(body.lead_time_days or DEFAULT_LEAD_TIME_DAYS)
 
     try:
-        preds, _model, _fn = recursive_multistep_forecast(
+        preds, model, feature_names, explain_row = recursive_multistep_forecast(
             hist,
             body.store_id,
             body.product_id,
@@ -74,13 +94,30 @@ def _run_forecast(body: ForecastRequest, save_json: bool) -> JSONResponse | Fore
     inv_on_hand = get_last_inventory(hist)
     so = calc_stockout_risk(total_7d, inv_on_hand, RISK_SIGMOID_SCALE)
     oo = calc_overstock_risk(total_7d, inv_on_hand, RISK_SIGMOID_SCALE)
-
-    response = ForecastResponse(
+    base_response = ForecastResponse(
         forecast=forecast_days,
         recommended_inventory=round(rec_inv, 4),
         stockout_risk=round(min(1.0, max(0.0, so)), 6),
         overstock_risk=round(min(1.0, max(0.0, oo)), 6),
     )
+    response: ForecastResponse | ForecastResponseWithExplanation
+    if include_explanation:
+        explanation = build_explanation_payload(
+            model=model,
+            feature_row=explain_row,
+            feature_names=feature_names,
+            total_predicted_demand=total_7d,
+            current_inventory=inv_on_hand,
+            recommended_inventory=rec_inv,
+            stockout_risk=so,
+            overstock_risk=oo,
+        )
+        response = ForecastResponseWithExplanation(
+            **base_response.model_dump(),
+            explanation=explanation,
+        )
+    else:
+        response = base_response
 
     if save_json:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -113,7 +150,19 @@ def forecast_post(
     Primary forecast endpoint — attach the Node server here (e.g. proxy POST /api/forecast
     to this URL on the ML process).
     """
-    return _run_forecast(body, save_json)
+    return _run_forecast(body, save_json, include_explanation=False)
+
+
+@api.post("/forecast/explain", response_model=ForecastResponseWithExplanation)
+def forecast_post_with_explainability(
+    body: ForecastRequest,
+    save_json: bool = Query(
+        True,
+        description="If true (default), writes JSON under outputs/ and sets X-Saved-Path. Use false to skip disk.",
+    ),
+):
+    """Forecast endpoint with explainability payload for SHAP + Gemini output."""
+    return _run_forecast(body, save_json, include_explanation=True)
 
 
 app.include_router(api, prefix="/api")
@@ -146,4 +195,16 @@ def forecast_legacy(
     ),
 ):
     """Same as POST /api/forecast (kept for older clients)."""
-    return _run_forecast(body, save_json)
+    return _run_forecast(body, save_json, include_explanation=False)
+
+
+@app.post("/forecast/explain", response_model=ForecastResponseWithExplanation)
+def forecast_legacy_with_explainability(
+    body: ForecastRequest,
+    save_json: bool = Query(
+        True,
+        description="If true (default), writes JSON under outputs/ and sets X-Saved-Path. Use false to skip disk.",
+    ),
+):
+    """Legacy path with explainability payload."""
+    return _run_forecast(body, save_json, include_explanation=True)

@@ -1,35 +1,68 @@
 {
   "forecast": [
     {
-      "date": "2025-01-15",
-      "predicted_units": 56.4596
+      "date": "2025-01-08",
+      "predicted_units": 53.0454
     },
     {
-      "date": "2025-01-16",
-      "predicted_units": 49.8399
+      "date": "2025-01-09",
+      "predicted_units": 51.498
     },
     {
-      "date": "2025-01-17",
-      "predicted_units": 50.0331
+      "date": "2025-01-10",
+      "predicted_units": 52.4119
     },
     {
-      "date": "2025-01-18",
-      "predicted_units": 60.0648
+      "date": "2025-01-11",
+      "predicted_units": 59.247
     },
     {
-      "date": "2025-01-19",
-      "predicted_units": 65.0428
+      "date": "2025-01-12",
+      "predicted_units": 66.4131
     },
     {
-      "date": "2025-01-20",
-      "predicted_units": 48.6965
+      "date": "2025-01-13",
+      "predicted_units": 54.8233
     },
     {
-      "date": "2025-01-21",
-      "predicted_units": 49.8926
+      "date": "2025-01-14",
+      "predicted_units": 52.3902
     }
   ],
-  "recommended_inventory": 407.2572,
-  "stockout_risk": 0.998974,
-  "overstock_risk": 0.001026
+  "recommended_inventory": 393.6733,
+  "stockout_risk": 0.999029,
+  "overstock_risk": 0.000971,
+  "explanation": {
+    "model_explanation": {
+      "structured_contributions": [
+        {
+          "feature_name": "Day of week",
+          "impact": -2.033974,
+          "direction": "decreases"
+        },
+        {
+          "feature_name": "Average temperature",
+          "impact": 2.030754,
+          "direction": "increases"
+        },
+        {
+          "feature_name": "Rainfall",
+          "impact": -1.380946,
+          "direction": "decreases"
+        },
+        {
+          "feature_name": "Weekend effect",
+          "impact": -0.755006,
+          "direction": "decreases"
+        },
+        {
+          "feature_name": "Product profile",
+          "impact": 0.695946,
+          "direction": "increases"
+        }
+      ],
+      "natural_language_summary": "For the next 7 days, demand is predicted at 389.8 units. Favorable weather, with higher average temperatures, is boosting demand. However, this is partially offset by specific days of the week, a negative weekend effect, and expected rainfall."
+    },
+    "business_explanation": "Immediately increase your inventory to approximately 394 units to meet the predicted demand. Your current stock of 43 units poses an extremely high stockout risk (~99.9%), while following this recommendation keeps overstock risk very low."
+  }
 }

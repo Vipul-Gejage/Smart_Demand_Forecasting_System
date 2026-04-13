@@ -26,10 +26,16 @@ def recursive_multistep_forecast(
     weather: pd.DataFrame,
     events: pd.DataFrame,
     horizon: int = DEFAULT_FORECAST_HORIZON,
-) -> Tuple[List[Tuple[pd.Timestamp, float]], Optional[Any], List[str]]:
+) -> Tuple[
+    List[Tuple[pd.Timestamp, float]],
+    Optional[Any],
+    List[str],
+    Optional[pd.DataFrame],
+]:
     """
     Predict next `horizon` days by appending each prediction and recomputing features.
-    Returns list of (date, predicted_units), model (or None if mock), feature_names.
+    Returns list of (date, predicted_units), model (or None if mock), feature_names,
+    and the first-step feature row used for explainability.
     """
     if hist.empty or "units_sold" not in hist.columns:
         raise ValueError("sales_history must include units_sold and at least one row")
@@ -44,6 +50,7 @@ def recursive_multistep_forecast(
 
     model, feature_names = load_trained_artifact()
     out: List[Tuple[pd.Timestamp, float]] = []
+    first_step_feature_row: Optional[pd.DataFrame] = None
 
     for step in range(horizon):
         next_date = last_date + timedelta(days=step + 1)
@@ -63,6 +70,8 @@ def recursive_multistep_forecast(
             events,
         )
         row = row_feature_vector(feat_full, feature_names)
+        if model is not None and step == 0:
+            first_step_feature_row = row.copy()
         if model is None:
             pred = _mock_step_prediction(extended["units_sold"], step)
         else:
@@ -77,4 +86,4 @@ def recursive_multistep_forecast(
             ignore_index=True,
         )
 
-    return out, model, feature_names
+    return out, model, feature_names, first_step_feature_row

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
@@ -105,8 +105,28 @@ class ForecastDay(APIModel):
     predicted_units: float
 
 
+class FeatureContribution(APIModel):
+    feature_name: str
+    impact: float
+    direction: Literal["increases", "decreases"]
+
+
+class ModelExplanation(APIModel):
+    structured_contributions: List[FeatureContribution]
+    natural_language_summary: str
+
+
+class ExplanationPayload(APIModel):
+    model_explanation: ModelExplanation
+    business_explanation: str
+
+
 class ForecastResponse(APIModel):
     forecast: List[ForecastDay]
     recommended_inventory: float
     stockout_risk: float
     overstock_risk: float
+
+
+class ForecastResponseWithExplanation(ForecastResponse):
+    explanation: ExplanationPayload

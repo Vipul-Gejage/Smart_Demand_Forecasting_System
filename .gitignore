@@ -1,4 +1,33 @@
-node_modules
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files
 .env
-dist
-client_backup
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python virtual environments
+.venv/
+venv/
+env/
+**/.venv/
+**/venv/
+**/env/
+
+# Build outputs
+dist/
+**/dist/
+
+# Python cache/artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local/generated project data
+client_backup/
+outputs/latest_forecast.json
+outputs/forecast_*.json
