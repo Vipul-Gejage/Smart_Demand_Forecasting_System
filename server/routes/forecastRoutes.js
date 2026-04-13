@@ -10,8 +10,8 @@ const {
 // 🔐 middleware
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.post("/", authMiddleware, addForecast);
-router.get("/", authMiddleware, getForecasts);
-router.get("/:id", authMiddleware, getForecastById);
+router.post("/", addForecast);
+router.get("/", getForecasts);
+router.get("/:id", getForecastById);
 
 module.exports = router;

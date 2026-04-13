@@ -13,7 +13,11 @@ const forecastSchema = new mongoose.Schema({
     required: true,
   },
   predicted_units_sold: Number,
-  recommended_inventory_level: Number
+  recommended_inventory_level: Number,
+  explanation: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
+  }
 }, {
   timestamps: true   // 🔥 good practice
 });

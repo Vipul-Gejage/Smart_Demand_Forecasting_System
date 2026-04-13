@@ -49,6 +49,7 @@ def recursive_multistep_forecast(
     )
 
     model, feature_names = load_trained_artifact()
+    print(f"DEBUG: Model loaded: {model is not None}, Feature names: {len(feature_names)}")
     out: List[Tuple[pd.Timestamp, float]] = []
     first_step_feature_row: Optional[pd.DataFrame] = None
 

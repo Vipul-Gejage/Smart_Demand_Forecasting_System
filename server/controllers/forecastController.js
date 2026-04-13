@@ -109,6 +109,8 @@ function buildAiReason({
 function buildAlertsFromForecast({
   storeId,
   productId,
+  numericStoreId,
+  numericProductId,
   forecastResponse,
   totalPredictedUnits,
   salesHistory,
@@ -131,19 +133,25 @@ function buildAlertsFromForecast({
   const signalSummary = getSignalSummary(promotions, weather, events);
   const aiSeverityBoost = anomalyScore >= 0.8;
 
+  const baseAlert = {
+    storeId,
+    productId,
+    numeric_store_id: numericStoreId,
+    numeric_product_id: numericProductId,
+    stockout_risk: stockoutRisk,
+    overstock_risk: overstockRisk,
+    predicted_units_sold: totalPredictedUnits,
+    recommended_inventory_level: recommendedInventory,
+    inventory_gap: inventoryGap,
+    anomaly_score: anomalyScore,
+  };
+
   if (stockoutRisk >= STOCKOUT_MEDIUM) {
     alerts.push({
+      ...baseAlert,
       type: "stockout",
       severity: stockoutRisk >= STOCKOUT_HIGH || aiSeverityBoost ? "high" : "medium",
-      message: `Stockout risk ${Math.round(stockoutRisk * 100)}% for product ${productId} in store ${storeId}.`,
-      store_id: storeId,
-      product_id: productId,
-      stockout_risk: stockoutRisk,
-      overstock_risk: overstockRisk,
-      predicted_units_sold: totalPredictedUnits,
-      recommended_inventory_level: recommendedInventory,
-      inventory_gap: inventoryGap,
-      anomaly_score: anomalyScore,
+      message: `Critical stockout risk (${Math.round(stockoutRisk * 100)}%) identified.`,
       ai_reason: buildAiReason({
         alertType: "stockout",
         predictedDailyAvg,
@@ -160,17 +168,10 @@ function buildAlertsFromForecast({
 
   if (overstockRisk >= OVERSTOCK_MEDIUM) {
     alerts.push({
+      ...baseAlert,
       type: "overstock",
       severity: overstockRisk >= OVERSTOCK_HIGH || aiSeverityBoost ? "high" : "medium",
-      message: `Overstock risk ${Math.round(overstockRisk * 100)}% for product ${productId} in store ${storeId}.`,
-      store_id: storeId,
-      product_id: productId,
-      stockout_risk: stockoutRisk,
-      overstock_risk: overstockRisk,
-      predicted_units_sold: totalPredictedUnits,
-      recommended_inventory_level: recommendedInventory,
-      inventory_gap: inventoryGap,
-      anomaly_score: anomalyScore,
+      message: `Significant overstock risk (${Math.round(overstockRisk * 100)}%) detected.`,
       ai_reason: buildAiReason({
         alertType: "overstock",
         predictedDailyAvg,
@@ -187,17 +188,10 @@ function buildAlertsFromForecast({
 
   if (totalPredictedUnits >= DEMAND_SPIKE_UNITS) {
     alerts.push({
+      ...baseAlert,
       type: "demand_spike",
       severity: "high",
-      message: `Demand spike expected (${Math.round(totalPredictedUnits)} units/7 days) for product ${productId} in store ${storeId}.`,
-      store_id: storeId,
-      product_id: productId,
-      stockout_risk: stockoutRisk,
-      overstock_risk: overstockRisk,
-      predicted_units_sold: totalPredictedUnits,
-      recommended_inventory_level: recommendedInventory,
-      inventory_gap: inventoryGap,
-      anomaly_score: anomalyScore,
+      message: `Abnormal demand spike projected (${Math.round(totalPredictedUnits)} units/week).`,
       ai_reason: buildAiReason({
         alertType: "demand_spike",
         predictedDailyAvg,
@@ -214,20 +208,13 @@ function buildAlertsFromForecast({
 
   if (Math.abs(inventoryGap) >= SIGNIFICANT_GAP_UNITS) {
     alerts.push({
+      ...baseAlert,
       type: "inventory_gap",
       severity: Math.abs(inventoryGap) >= 80 ? "high" : "low",
       message:
         inventoryGap > 0
-          ? `Inventory shortfall of ${inventoryGap} units for product ${productId} in store ${storeId}.`
-          : `Inventory excess of ${Math.abs(inventoryGap)} units for product ${productId} in store ${storeId}.`,
-      store_id: storeId,
-      product_id: productId,
-      stockout_risk: stockoutRisk,
-      overstock_risk: overstockRisk,
-      predicted_units_sold: totalPredictedUnits,
-      recommended_inventory_level: recommendedInventory,
-      inventory_gap: inventoryGap,
-      anomaly_score: anomalyScore,
+          ? `Inventory shortfall of ${inventoryGap} units forecasted.`
+          : `Excess inventory of ${Math.abs(inventoryGap)} units expected.`,
       ai_reason:
         anomalyScore > 0
           ? buildAiReason({
@@ -251,38 +238,54 @@ function buildAlertsFromForecast({
 // ➕ Run Forecast (calls ML service)
 exports.addForecast = async (req, res) => {
   try {
-    // Forward request to ML service
-    const mlResponse = await axios.post('http://localhost:8001/api/forecast', req.body, {
+    const { storeId, productId, numericStoreId, numericProductId, salesHistory, leadTimeDays, promotions, weather, events } = req.body;
+
+    // Prepare payload for ML service using numeric IDs
+    const mlBody = {
+      storeId: numericStoreId,
+      productId: numericProductId,
+      salesHistory,
+      leadTimeDays,
+      promotions: promotions || [],
+      weather: weather || [],
+      events: events || []
+    };
+
+    // Forward request to ML service with explainability
+    const mlResponse = await axios.post('http://localhost:8001/api/forecast/explain', mlBody, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    // Save to database if needed
-    const Forecast = require("../models/Forecast");
+    // Save to database using MongoDB IDs
     const totalPredictedUnits = mlResponse.data.forecast.reduce(
       (sum, day) => sum + day.predicted_units,
       0
     );
     const forecastData = {
       date: new Date().toISOString().split('T')[0],
-      store_id: req.body.storeId,
-      product_id: req.body.productId,
+      storeId: storeId, // MongoDB ObjectId
+      productId: productId, // MongoDB ObjectId
       predicted_units_sold: totalPredictedUnits,
-      recommended_inventory_level: mlResponse.data.recommended_inventory
+      recommended_inventory_level: mlResponse.data.recommended_inventory,
+      explanation: mlResponse.data.explanation // Persist the AI explanation
     };
 
     await Forecast.create(forecastData);
 
+    // Build alerts with correct MongoDB ObjectIds and numeric IDs
     const alertsToInsert = buildAlertsFromForecast({
-      storeId: req.body.storeId,
-      productId: req.body.productId,
+      storeId, // MongoDB ObjectId
+      productId, // MongoDB ObjectId
+      numericStoreId,
+      numericProductId,
       forecastResponse: mlResponse.data,
       totalPredictedUnits,
-      salesHistory: req.body.salesHistory,
-      promotions: req.body.promotions,
-      weather: req.body.weather,
-      events: req.body.events,
+      salesHistory,
+      promotions: promotions || [],
+      weather: weather || [],
+      events: events || [],
     });
     if (alertsToInsert.length) {
       await Alert.insertMany(alertsToInsert);
@@ -308,12 +311,11 @@ exports.getForecasts = async (req, res) => {
 // 🔍 Get Forecast by product/store (calls ML service if no cached data)
 exports.getForecastById = async (req, res) => {
   try {
-    const productId = Number(req.params.id);
+    const productId = req.params.id; // Could be MongoDB ID or numeric ID string
 
-    // First check if we have cached forecast
-    const Forecast = require("../models/Forecast");
+    // First check if we have cached forecast by MongoDB ID
     const cached = await Forecast.find({
-      product_id: productId
+      productId: productId
     }).sort({ createdAt: -1 }).limit(1);
 
     if (cached && cached.length > 0) {
@@ -323,7 +325,7 @@ exports.getForecastById = async (req, res) => {
       // No cached data, return message to run forecast first
       res.json({
         message: "No forecast data available. Please run a forecast first.",
-        product_id: productId
+        productId: productId
       });
     }
   } catch (error) {

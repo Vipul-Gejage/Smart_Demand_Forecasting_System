@@ -17,7 +17,7 @@ import {
   BrainCircuit,
   TrendingDown,
   TrendingUp,
-  AlertCircle,
+  AlertTriangle,
   ChevronRight,
   PackageCheck,
   Calendar,
@@ -44,10 +44,11 @@ export default function Forecast() {
           API.get("/inventory/products"),
           API.get("/inventory/stores"),
         ]);
-        setProducts(prodRes.data);
-        setStores(storeRes.data);
+        setProducts(prodRes.data || []);
+        setStores(storeRes.data || []);
       } catch (err) {
         console.error("Fetch Error:", err);
+        setError("Failed to load products and stores");
       }
     };
     fetchData();
@@ -63,16 +64,28 @@ export default function Forecast() {
     setError("");
 
     try {
-      // 1. Fetch sales history
+      // Find the product and store objects to get their numeric IDs
+      const selectedProduct = products.find((p) => p._id === form.productId);
+      const selectedStore = stores.find((s) => s._id === form.storeId);
+
+      if (!selectedProduct || !selectedStore) {
+        setError("Selected product or store not found");
+        setLoading(false);
+        return;
+      }
+
+      // 1. Fetch sales history using MongoDB IDs
       const historyRes = await API.get(
         `/sales/history?productId=${form.productId}&storeId=${form.storeId}`,
       );
-      const salesHistory = historyRes.data;
+      const salesHistory = historyRes.data || [];
 
-      // 2. Run forecast
+      // 2. Run forecast with numeric IDs for ML service
       const requestData = {
-        storeId: form.storeId, // ✅ Pass ObjectIds
-        productId: form.productId, // ✅ Pass ObjectIds
+        storeId: form.storeId, // Mongo ID
+        productId: form.productId, // Mongo ID
+        numericStoreId: selectedStore.store_id, // Numeric ID
+        numericProductId: selectedProduct.product_id, // Numeric ID
         salesHistory,
         leadTimeDays: form.leadTimeDays,
         promotions: [],
@@ -80,12 +93,18 @@ export default function Forecast() {
         events: [],
       };
 
+      console.log("Sending:", requestData);
       const res = await API.post("/forecast", requestData);
-      setForecast(res.data);
+      console.log("Received Forecast Data:", res.data);
+      if (res.data) {
+        setForecast(res.data);
+      } else {
+        setError("Invalid forecast response from server");
+      }
     } catch (err) {
       console.error("Forecast Error:", err);
       setError(
-        err.message || err.response?.data?.error || "Error running forecast",
+        err.response?.data?.error || err.message || "Error running forecast",
       );
     } finally {
       setLoading(false);
@@ -244,7 +263,7 @@ export default function Forecast() {
             </div>
             {error && (
               <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
-                <AlertCircle className="h-4 w-4" />
+                <AlertTriangle className="h-4 w-4" />
                 {error}
               </div>
             )}
@@ -281,6 +300,50 @@ export default function Forecast() {
               />
             </div>
 
+            {/* AI Explanation Section */}
+            {forecast.explanation && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                <div className="bg-white p-8 rounded-[32px] border border-primary-100 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+                      <BrainCircuit className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-xs font-black text-secondary-900 uppercase tracking-widest">
+                      Demand Drivers (SHAP + Gemini)
+                    </h3>
+                  </div>
+                  <p className="text-[11px] text-secondary-600 font-medium leading-relaxed">
+                    {forecast.explanation.model_explanation?.natural_language_summary}
+                  </p>
+                  {forecast.explanation.model_explanation?.structured_contributions?.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {forecast.explanation.model_explanation.structured_contributions.slice(0, 3).map((c, idx) => (
+                        <span key={idx} className={`text-[8px] px-2 py-1 rounded-md font-black uppercase tracking-widest border ${
+                          c.direction === "increases" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
+                        }`}>
+                          {c.feature_name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-white p-8 rounded-[32px] border border-secondary-100 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-secondary-50 rounded-lg text-secondary-600">
+                      <PackageCheck className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-xs font-black text-secondary-900 uppercase tracking-widest">
+                      Inventory Advisory
+                    </h3>
+                  </div>
+                  <p className="text-[11px] text-secondary-600 font-medium leading-relaxed">
+                    {forecast.explanation.business_explanation}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Main Forecast Chart */}
             <div className="bg-white p-10 rounded-[40px] shadow-sm border border-secondary-200 mb-12">
               <div className="flex justify-between items-center mb-10">
@@ -303,55 +366,61 @@ export default function Forecast() {
               </div>
 
               <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={forecast.forecast}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical={false}
-                      stroke="#f1f5f9"
-                    />
-                    <XAxis
-                      dataKey="date"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: "#64748b", fontSize: 9, fontWeight: 700 }}
-                      dy={15}
-                      tickFormatter={(val) =>
-                        new Date(val).toLocaleDateString(undefined, {
-                          weekday: "short",
-                          day: "numeric",
-                        })
-                      }
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: "#64748b", fontSize: 9, fontWeight: 700 }}
-                    />
-                    <Tooltip
-                      cursor={{ fill: "#f8fafc" }}
-                      contentStyle={{
-                        borderRadius: "16px",
-                        border: "none",
-                        boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                        padding: "12px",
-                      }}
-                      labelStyle={{
-                        fontWeight: 900,
-                        color: "#0f172a",
-                        fontSize: "11px",
-                        marginBottom: "4px",
-                      }}
-                      itemStyle={{ fontSize: "11px", fontWeight: 700 }}
-                    />
-                    <Bar
-                      dataKey="predicted_units"
-                      fill="#0ea5e9"
-                      radius={[4, 4, 0, 0]}
-                      barSize={32}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                {forecast.forecast && forecast.forecast.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={forecast.forecast}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        vertical={false}
+                        stroke="#f1f5f9"
+                      />
+                      <XAxis
+                        dataKey="date"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 9, fontWeight: 700 }}
+                        dy={15}
+                        tickFormatter={(val) =>
+                          new Date(val).toLocaleDateString(undefined, {
+                            weekday: "short",
+                            day: "numeric",
+                          })
+                        }
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 9, fontWeight: 700 }}
+                      />
+                      <Tooltip
+                        cursor={{ fill: "#f8fafc" }}
+                        contentStyle={{
+                          borderRadius: "16px",
+                          border: "none",
+                          boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                          padding: "12px",
+                        }}
+                        labelStyle={{
+                          fontWeight: 900,
+                          color: "#0f172a",
+                          fontSize: "11px",
+                          marginBottom: "4px",
+                        }}
+                        itemStyle={{ fontSize: "11px", fontWeight: 700 }}
+                      />
+                      <Bar
+                        dataKey="predicted_units"
+                        fill="#0ea5e9"
+                        radius={[4, 4, 0, 0]}
+                        barSize={32}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-secondary-400 font-bold text-[10px] uppercase tracking-widest">
+                    No forecast data available
+                  </div>
+                )}
               </div>
             </div>
 
@@ -372,7 +441,7 @@ export default function Forecast() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-50">
-                    {forecast.forecast.map((day, i) => (
+                    {forecast.forecast?.map((day, i) => (
                       <tr
                         key={i}
                         className="hover:bg-secondary-50/50 transition-colors"

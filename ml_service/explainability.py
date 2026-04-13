@@ -50,36 +50,46 @@ def compute_shap_contributions(
     if model is None or feature_row is None or feature_row.empty or shap is None:
         return []
 
-    aligned = feature_row[list(feature_names)].copy()
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(aligned)
+    try:
+        aligned = feature_row[list(feature_names)].copy()
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(aligned)
 
-    if hasattr(shap_values, "tolist"):
-        values = shap_values[0] if getattr(shap_values, "ndim", 1) > 1 else shap_values
-    else:
-        values = shap_values
+        # Handle different SHAP versions and model types
+        if hasattr(shap_values, "values"): # shap.Explanation object
+            values = shap_values.values[0]
+        elif isinstance(shap_values, list): # multi-output or old version
+            values = shap_values[0][0] if len(shap_values[0].shape) > 1 else shap_values[0]
+        elif hasattr(shap_values, "ndim") and shap_values.ndim > 1:
+            values = shap_values[0]
+        else:
+            values = shap_values
 
-    ranked = sorted(
-        zip(feature_names, values),
-        key=lambda item: abs(float(item[1])),
-        reverse=True,
-    )[:top_k]
+        ranked = sorted(
+            zip(feature_names, values),
+            key=lambda item: abs(float(item[1])),
+            reverse=True,
+        )[:top_k]
 
-    contributions: List[FeatureContribution] = []
-    for name, value in ranked:
-        num = float(value)
-        contributions.append(
-            FeatureContribution(
-                feature_name=FEATURE_DISPLAY_NAMES.get(name, name),
-                impact=round(num, 6),
-                direction="increases" if num >= 0 else "decreases",
+        contributions: List[FeatureContribution] = []
+        for name, value in ranked:
+            num = float(value)
+            contributions.append(
+                FeatureContribution(
+                    feature_name=FEATURE_DISPLAY_NAMES.get(name, name),
+                    impact=round(num, 6),
+                    direction="increases" if num >= 0 else "decreases",
+                )
             )
-        )
-    return contributions
+        return contributions
+    except Exception as e:
+        print(f"SHAP Error: {e}")
+        return []
 
 
 def _gemini_client() -> Any | None:
     api_key = os.environ.get("GEMINI_API_KEY")
+    print(f"DEBUG: GEMINI_API_KEY found: {bool(api_key)}")
     if not api_key or genai is None:
         return None
     genai.configure(api_key=api_key)

@@ -9,7 +9,7 @@ except ImportError:  # pragma: no cover
 
 _ENV_PATH = Path(__file__).resolve().parent / ".env"
 if load_dotenv is not None and _ENV_PATH.is_file():
-    load_dotenv(dotenv_path=_ENV_PATH, override=False)
+    load_dotenv(dotenv_path=_ENV_PATH, override=True)
 
 from datetime import datetime
 

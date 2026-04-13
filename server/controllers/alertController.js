@@ -3,16 +3,18 @@ const Alert = require("../models/Alert");
 // ⚠️ Get Alerts
 exports.getAlerts = async (req, res) => {
   try {
-    const { status, severity, type, store_id, product_id, limit = 50 } = req.query;
+    const { status, severity, type, storeId, productId, limit = 50 } = req.query;
     const query = {};
 
     if (status) query.status = status;
     if (severity) query.severity = severity;
     if (type) query.type = type;
-    if (store_id) query.store_id = Number(store_id);
-    if (product_id) query.product_id = Number(product_id);
+    if (storeId) query.storeId = storeId;
+    if (productId) query.productId = productId;
 
     const items = await Alert.find(query)
+      .populate("storeId")
+      .populate("productId")
       .sort({ createdAt: -1 })
       .limit(Math.min(Number(limit) || 50, 200));
 
