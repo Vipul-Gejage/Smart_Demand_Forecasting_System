@@ -1,51 +1,47 @@
-const Sales = require("../models/Sales");
+const Alert = require("../models/Alert");
 
 // ⚠️ Get Alerts
 exports.getAlerts = async (req, res) => {
   try {
-    const alerts = [];
+    const { status, severity, type, store_id, product_id, limit = 50 } = req.query;
+    const query = {};
 
-    // 🔴 Stockout Risk (low inventory)
-    const lowStock = await Sales.find({
-      inventory_on_hand: { $lt: 20 }
-    }).limit(10);
+    if (status) query.status = status;
+    if (severity) query.severity = severity;
+    if (type) query.type = type;
+    if (store_id) query.store_id = Number(store_id);
+    if (product_id) query.product_id = Number(product_id);
 
-    lowStock.forEach(item => {
-      alerts.push({
-        type: "stockout",
-        message: `Low stock for product ${item.product_id} in store ${item.store_id}`,
-        level: "high"
-      });
-    });
+    const items = await Alert.find(query)
+      .sort({ createdAt: -1 })
+      .limit(Math.min(Number(limit) || 50, 200));
 
-    // 🟡 Overstock
-    const overStock = await Sales.find({
-      inventory_on_hand: { $gt: 200 }
-    }).limit(10);
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    overStock.forEach(item => {
-      alerts.push({
-        type: "overstock",
-        message: `Overstock for product ${item.product_id} in store ${item.store_id}`,
-        level: "medium"
-      });
-    });
+// ✅ Update Alert Status
+exports.updateAlertStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-    // 🔥 Demand Spike (high sales)
-    const spikes = await Sales.find({
-      units_sold: { $gt: 100 }
-    }).limit(10);
+    if (!["new", "acknowledged", "resolved"].includes(status)) {
+      return res.status(400).json({ error: "Invalid alert status." });
+    }
 
-    spikes.forEach(item => {
-      alerts.push({
-        type: "demand_spike",
-        message: `High demand for product ${item.product_id}`,
-        level: "high"
-      });
-    });
+    const updated = await Alert.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
+    );
+    if (!updated) {
+      return res.status(404).json({ error: "Alert not found." });
+    }
 
-    res.json(alerts);
-
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

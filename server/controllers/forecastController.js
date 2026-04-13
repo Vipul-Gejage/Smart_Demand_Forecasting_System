@@ -1,6 +1,252 @@
 const Forecast = require("../models/Forecast");
+const Alert = require("../models/Alert");
 
 const axios = require('axios');
+
+const STOCKOUT_HIGH = 0.7;
+const STOCKOUT_MEDIUM = 0.5;
+const OVERSTOCK_HIGH = 0.7;
+const OVERSTOCK_MEDIUM = 0.5;
+const DEMAND_SPIKE_UNITS = 350;
+const SIGNIFICANT_GAP_UNITS = 40;
+
+function getNumericDemand(historyRow) {
+  const value = historyRow?.unitsSold ?? historyRow?.units_sold;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+function calculateAnomalyScore(salesHistory, predictedDailyAvg) {
+  if (!Array.isArray(salesHistory) || salesHistory.length < 5) {
+    return {
+      anomalyScore: 0,
+      aiReason: "Insufficient history for anomaly analysis.",
+      historyMean: predictedDailyAvg,
+      zScore: 0,
+    };
+  }
+
+  const historyValues = salesHistory.map(getNumericDemand).filter((v) => v !== null);
+  if (historyValues.length < 5) {
+    return {
+      anomalyScore: 0,
+      aiReason: "Insufficient valid demand points for AI scoring.",
+      historyMean: predictedDailyAvg,
+      zScore: 0,
+    };
+  }
+
+  const mean = historyValues.reduce((sum, v) => sum + v, 0) / historyValues.length;
+  const variance =
+    historyValues.reduce((sum, v) => sum + (v - mean) ** 2, 0) / historyValues.length;
+  const std = Math.sqrt(variance);
+  const safeStd = std < 1 ? 1 : std;
+  const z = (predictedDailyAvg - mean) / safeStd;
+  const anomalyScore = Math.min(1, Math.abs(z) / 3);
+
+  const direction = predictedDailyAvg >= mean ? "above" : "below";
+  const aiReason = `Forecast daily average ${predictedDailyAvg.toFixed(
+    1
+  )} is ${direction} baseline ${mean.toFixed(1)} (z=${z.toFixed(2)}).`;
+
+  return { anomalyScore, aiReason, historyMean: mean, zScore: z };
+}
+
+function countActiveSignals(rows, candidateKeys) {
+  if (!Array.isArray(rows) || rows.length === 0) return 0;
+  return rows.reduce((count, row) => {
+    const isActive = candidateKeys.some((key) => {
+      const value = row?.[key];
+      if (typeof value === "boolean") return value;
+      if (typeof value === "number") return value > 0;
+      if (typeof value === "string") return value.trim() !== "";
+      return false;
+    });
+    return count + (isActive ? 1 : 0);
+  }, 0);
+}
+
+function getSignalSummary(promotions, weather, events) {
+  return {
+    promoDays: countActiveSignals(promotions, ["promoFlag", "promo_flag", "discountPct", "discount_pct"]),
+    eventDays: countActiveSignals(events, ["eventFlag", "event_flag", "impactLevel", "impact_level"]),
+    weatherDays: countActiveSignals(weather, ["rainfallMm", "rainfall_mm", "tempAnomaly", "temp_anomaly"]),
+  };
+}
+
+function buildAiReason({
+  alertType,
+  predictedDailyAvg,
+  historyMean,
+  deltaPct,
+  zScore,
+  stockoutRisk,
+  overstockRisk,
+  inventoryGap,
+  signalSummary,
+}) {
+  const direction = predictedDailyAvg >= historyMean ? "higher" : "lower";
+  const baselinePart = `Forecast/day ${predictedDailyAvg.toFixed(1)} is ${direction} than recent baseline ${historyMean.toFixed(1)} (${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%, z=${zScore.toFixed(2)}).`;
+
+  const signalParts = [];
+  if (signalSummary.promoDays > 0) signalParts.push(`${signalSummary.promoDays} promotion day(s) in input`);
+  if (signalSummary.eventDays > 0) signalParts.push(`${signalSummary.eventDays} event day(s) in input`);
+  if (signalSummary.weatherDays > 0) signalParts.push(`${signalSummary.weatherDays} weather-impact day(s) in input`);
+  const signalsPart = signalParts.length ? ` Signals: ${signalParts.join(", ")}.` : "";
+
+  if (alertType === "stockout") {
+    return `${baselinePart} Stockout risk ${Math.round(stockoutRisk * 100)}% with inventory gap ${inventoryGap} units.${signalsPart}`;
+  }
+  if (alertType === "overstock") {
+    return `${baselinePart} Overstock risk ${Math.round(overstockRisk * 100)}% with inventory gap ${inventoryGap} units.${signalsPart}`;
+  }
+  if (alertType === "demand_spike") {
+    return `${baselinePart} Demand spike flagged because 7-day total is unusually high.${signalsPart}`;
+  }
+  return `${baselinePart} Inventory gap (${inventoryGap} units) crosses configured threshold.${signalsPart}`;
+}
+
+function buildAlertsFromForecast({
+  storeId,
+  productId,
+  forecastResponse,
+  totalPredictedUnits,
+  salesHistory,
+  promotions,
+  weather,
+  events,
+}) {
+  const alerts = [];
+  const stockoutRisk = Number(forecastResponse.stockout_risk || 0);
+  const overstockRisk = Number(forecastResponse.overstock_risk || 0);
+  const recommendedInventory = Number(forecastResponse.recommended_inventory || 0);
+  const inventoryGap = Math.round(recommendedInventory - totalPredictedUnits);
+  const predictedDailyAvg = totalPredictedUnits / 7;
+  const { anomalyScore, aiReason, historyMean, zScore } = calculateAnomalyScore(
+    salesHistory,
+    predictedDailyAvg
+  );
+  const safeMean = historyMean === 0 ? 1 : historyMean;
+  const deltaPct = ((predictedDailyAvg - historyMean) / safeMean) * 100;
+  const signalSummary = getSignalSummary(promotions, weather, events);
+  const aiSeverityBoost = anomalyScore >= 0.8;
+
+  if (stockoutRisk >= STOCKOUT_MEDIUM) {
+    alerts.push({
+      type: "stockout",
+      severity: stockoutRisk >= STOCKOUT_HIGH || aiSeverityBoost ? "high" : "medium",
+      message: `Stockout risk ${Math.round(stockoutRisk * 100)}% for product ${productId} in store ${storeId}.`,
+      store_id: storeId,
+      product_id: productId,
+      stockout_risk: stockoutRisk,
+      overstock_risk: overstockRisk,
+      predicted_units_sold: totalPredictedUnits,
+      recommended_inventory_level: recommendedInventory,
+      inventory_gap: inventoryGap,
+      anomaly_score: anomalyScore,
+      ai_reason: buildAiReason({
+        alertType: "stockout",
+        predictedDailyAvg,
+        historyMean,
+        deltaPct,
+        zScore,
+        stockoutRisk,
+        overstockRisk,
+        inventoryGap,
+        signalSummary,
+      }),
+    });
+  }
+
+  if (overstockRisk >= OVERSTOCK_MEDIUM) {
+    alerts.push({
+      type: "overstock",
+      severity: overstockRisk >= OVERSTOCK_HIGH || aiSeverityBoost ? "high" : "medium",
+      message: `Overstock risk ${Math.round(overstockRisk * 100)}% for product ${productId} in store ${storeId}.`,
+      store_id: storeId,
+      product_id: productId,
+      stockout_risk: stockoutRisk,
+      overstock_risk: overstockRisk,
+      predicted_units_sold: totalPredictedUnits,
+      recommended_inventory_level: recommendedInventory,
+      inventory_gap: inventoryGap,
+      anomaly_score: anomalyScore,
+      ai_reason: buildAiReason({
+        alertType: "overstock",
+        predictedDailyAvg,
+        historyMean,
+        deltaPct,
+        zScore,
+        stockoutRisk,
+        overstockRisk,
+        inventoryGap,
+        signalSummary,
+      }),
+    });
+  }
+
+  if (totalPredictedUnits >= DEMAND_SPIKE_UNITS) {
+    alerts.push({
+      type: "demand_spike",
+      severity: "high",
+      message: `Demand spike expected (${Math.round(totalPredictedUnits)} units/7 days) for product ${productId} in store ${storeId}.`,
+      store_id: storeId,
+      product_id: productId,
+      stockout_risk: stockoutRisk,
+      overstock_risk: overstockRisk,
+      predicted_units_sold: totalPredictedUnits,
+      recommended_inventory_level: recommendedInventory,
+      inventory_gap: inventoryGap,
+      anomaly_score: anomalyScore,
+      ai_reason: buildAiReason({
+        alertType: "demand_spike",
+        predictedDailyAvg,
+        historyMean,
+        deltaPct,
+        zScore,
+        stockoutRisk,
+        overstockRisk,
+        inventoryGap,
+        signalSummary,
+      }),
+    });
+  }
+
+  if (Math.abs(inventoryGap) >= SIGNIFICANT_GAP_UNITS) {
+    alerts.push({
+      type: "inventory_gap",
+      severity: Math.abs(inventoryGap) >= 80 ? "high" : "low",
+      message:
+        inventoryGap > 0
+          ? `Inventory shortfall of ${inventoryGap} units for product ${productId} in store ${storeId}.`
+          : `Inventory excess of ${Math.abs(inventoryGap)} units for product ${productId} in store ${storeId}.`,
+      store_id: storeId,
+      product_id: productId,
+      stockout_risk: stockoutRisk,
+      overstock_risk: overstockRisk,
+      predicted_units_sold: totalPredictedUnits,
+      recommended_inventory_level: recommendedInventory,
+      inventory_gap: inventoryGap,
+      anomaly_score: anomalyScore,
+      ai_reason:
+        anomalyScore > 0
+          ? buildAiReason({
+              alertType: "inventory_gap",
+              predictedDailyAvg,
+              historyMean,
+              deltaPct,
+              zScore,
+              stockoutRisk,
+              overstockRisk,
+              inventoryGap,
+              signalSummary,
+            })
+          : aiReason,
+    });
+  }
+
+  return alerts;
+}
 
 // ➕ Run Forecast (calls ML service)
 exports.addForecast = async (req, res) => {
@@ -14,15 +260,33 @@ exports.addForecast = async (req, res) => {
 
     // Save to database if needed
     const Forecast = require("../models/Forecast");
+    const totalPredictedUnits = mlResponse.data.forecast.reduce(
+      (sum, day) => sum + day.predicted_units,
+      0
+    );
     const forecastData = {
       date: new Date().toISOString().split('T')[0],
       store_id: req.body.storeId,
       product_id: req.body.productId,
-      predicted_units_sold: mlResponse.data.forecast.reduce((sum, day) => sum + day.predicted_units, 0),
+      predicted_units_sold: totalPredictedUnits,
       recommended_inventory_level: mlResponse.data.recommended_inventory
     };
 
     await Forecast.create(forecastData);
+
+    const alertsToInsert = buildAlertsFromForecast({
+      storeId: req.body.storeId,
+      productId: req.body.productId,
+      forecastResponse: mlResponse.data,
+      totalPredictedUnits,
+      salesHistory: req.body.salesHistory,
+      promotions: req.body.promotions,
+      weather: req.body.weather,
+      events: req.body.events,
+    });
+    if (alertsToInsert.length) {
+      await Alert.insertMany(alertsToInsert);
+    }
 
     res.status(201).json(mlResponse.data);
   } catch (error) {
